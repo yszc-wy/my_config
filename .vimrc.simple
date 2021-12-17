@@ -1,0 +1,376 @@
+" 查询快捷键 :verbose map <key>
+" 查询某个配置被修改的记录,主要用来查询某个配置被哪个插件所修改 verbose set conceallevel? concealcursor? 
+" 基本设置----------------{{{ 
+" 不兼容vi模式 必须放在第一行
+set nocompatible
+" 解决backspace无法删除的问题
+set backspace=indent,eol,start
+" 开启语法高亮
+syntax on  
+" 高亮当前行
+set cursorline 
+" 开启搜索高亮
+set incsearch
+" 设定历史记录数
+set history =50
+" 设定为系统剪贴板
+set clipboard=unnamed
+" 消除~后缀备份文件
+set nobackup
+" 消除un后缀备份文件
+set noundofile
+" 显示行号
+set number
+" 高亮搜索项
+set hlsearch
+" 用空格代替tab键
+" 设置tab宽度,为了符合google c++标准将4空格换位2空格节省横向空间      
+set tabstop=4
+" 设置缩进宽度
+set shiftwidth=4
+" 用空格代替tab,问题：用空格代替tab会导致一些快捷键无法使用
+" 可以尝试用 c-j/k 来选择
+set expandtab
+" 使用该选项可以让一次backspace删除4个空格
+set softtabstop=4
+" 设置mapleader为逗号
+let mapleader=","
+" 设置编码
+set encoding=utf-8
+language messages zh_CN.utf-8
+" 侧边栏常显示
+set signcolumn=yes
+" 解决esc延时问题: https://vi.stackexchange.com/questions/16148/slow-vim-escape-from-insert-mode
+" set timeoutlen=1000
+set ttimeoutlen=5
+" vim命令行增强提示菜单
+set wildmenu
+" quickfix列出的文件在打开时定位到已有的tab或newtab,不会覆盖当前tab
+set switchbuf+=usetab,newtab
+" vim在默认情况下会加入\n在文件尾部
+" 在使用ab test读取vim编辑的postfile时会导致额外的换行符，导致校验失败,我们需要关闭他
+" 参考 https://stackoverflow.com/questions/14171254/why-would-vim-add-a-new-line-at-the-end-of-a-file
+" 实际上，在尾部添加换行符是比较合理的行为: https://stackoverflow.com/questions/729692/why-should-text-files-end-with-a-newline
+" set binary
+" set noeol
+"}}}
+
+
+" 全局变量------------------{{{
+let g:author="wangyue"
+" }}}
+"
+" 映射-------------------{{{
+" 取消默认的删除剪切操作,此映射会导致删除卡顿
+" nnoremap x "_x
+" nnoremap X "_X
+" nnoremap d "_d
+" nnoremap dd "_dd
+" nnoremap D "_D
+" vnoremap d "_d
+" vnoremap dd "_dd
+
+" 将c-p映射为复制寄存器粘贴(用于特定的粘贴任务)，默认粘贴为无名寄存器
+nnoremap <c-p> "0p 
+
+" tab切换
+" C-W +j/k/l/h可以移动窗口光标，不用按多次w
+" CTRL-A 是全选
+nnoremap <c-a> ggvG
+" 高亮开关
+nnoremap <leader>hl :set hlsearch!<cr>
+" 定义快速打开加载.vimrc和.vimrc.vundle文件
+nnoremap <leader>ev :tabe $MYVIMRC<cr>
+nnoremap <leader>sv :source $MYVIMRC<cr>
+
+" c-j/k映射成翻页键
+nnoremap <c-j> <c-d>
+nnoremap <c-k> <c-u>
+vnoremap <c-j> <c-d>
+vnoremap <c-k> <c-u>
+
+" c-,/.映射为tab翻页键
+nnoremap <c-h> :tabp<cr>
+nnoremap <c-l> :tabn<cr>
+
+" H映射为0,L映射为$
+nnoremap 0 <nop>
+nnoremap $ <nop>
+nnoremap H 0
+nnoremap L $
+vnoremap H 0
+vnoremap L $
+" 操作符号重映射
+onoremap H 0
+onoremap L $
+" J/K向上/下移动一段?一页?还是easymotion
+" insert模式下方向键
+inoremap <c-h> <Left>
+inoremap <c-l> <Right>
+inoremap <c-j> <Down>
+inoremap <c-k> <Up>
+" 方向键习惯改掉
+" nnoremap <Left> <nop>
+" nnoremap <Up> <nop>
+" nnoremap <Right> <nop>
+" nnoremap <Down> <nop>
+" inoremap <Left> <nop>
+" inoremap <Up> <nop>
+" inoremap <Right> <nop>
+" inoremap <Down> <nop>
+" 替换中文标点为英文标点
+" inoremap 。 .
+" inoremap ， ,
+" inoremap ？ ?
+" inoremap ！ !
+" inoremap ‘ '
+" inoremap “ "
+" inoremap ” "
+" inoremap ： :
+" inoremap ； ;
+" inoremap （ (
+" inoremap ） )
+" inoremap ￥ $
+" insert模式jk代替<esc>
+" 将inoremap模式下的<esc>映射为空导致了方向键和翻页键乱码的情况
+nnoremap j gj
+nnoremap k gk
+
+inoremap jk <esc>
+" cnoremap jk <c-c> 
+
+" inoremap <esc> <nop>
+
+" 快速保存,退出
+nnoremap <c-s> :w<cr>
+nnoremap <c-q> :q<cr>
+" 不能映射normal模式下的esc键，因为方向键和翻页键的前缀是esc
+" 这会导致在键入方向键或翻页键时退出，并且失灵
+" nnoremap <esc> :q
+" 在可视模式下，对选中文本使用剪贴板中的内容进行覆盖不会将剪贴板刷新成覆盖的内容
+" https://vi.stackexchange.com/questions/25259/clipboard-is-reset-after-first-paste-in-visual-mode
+xnoremap <expr> p 'pgv"'.v:register.'y`>'
+xnoremap <expr> P 'Pgv"'.v:register.'y`>'
+"}}}
+
+
+" 自动命令组----------------{{{
+
+" 自动安装vim-plug
+let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
+if empty(glob(data_dir . '/autoload/plug.vim'))
+  silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+" 这个在tmux中是有效的,不会导致光标回弹现象
+let &t_SI.="\e[5 q"
+let &t_EI.="\e[1 q"
+
+" }}}
+
+" 插件订阅表-----------{{{
+
+" Specify a directory for plugins
+" - For Neovim: stdpath('data') . '/plugged'
+" - Avoid using standard Vim directory names like 'plugin'
+call plug#begin('~/.vim/plugged')
+
+" Make sure you use single quotes
+
+" color
+Plug 'morhetz/gruvbox'
+
+" On-demand loading
+Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeTabsToggle' }
+Plug 'jistr/vim-nerdtree-tabs'
+
+" 边框栏优化
+Plug 'vim-airline/vim-airline'
+
+" 光标移动
+Plug 'easymotion/vim-easymotion'
+
+" 快速文件访问(还需要grep的文本访问）
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
+
+" lldb debug工具
+" Plug 'gilligan/vim-lldb'
+
+" 注释工具
+Plug 'scrooloose/nerdcommenter'
+
+Plug 'yianwillis/vimcdoc'
+
+" 快速检索tag
+" Plug 'majutsushi/tagbar'
+
+" 显示缩进线
+Plug 'Yggdroot/indentLine'
+
+" Plugin outside ~/.vim/plugged with post-update hook
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+
+
+" 自动括号补全
+Plug 'jiangmiao/auto-pairs'
+
+" 修正python缩进异常的问题
+Plug 'vimjas/vim-python-pep8-indent'
+
+
+" Initialize plugin system
+call plug#end()
+
+" }}}
+
+" 定义leader
+let mapleader=","
+
+" 插件配置
+
+" 主题字体----------------------------{{{
+colorscheme gruvbox
+set guifont=DejaVu\ Sans\ Mono:h13
+set background=dark
+" }}}
+
+" airline----------------------{{{
+set laststatus=2
+" 使用powerline打过补丁的字体
+let g:airline_powerline_fonts=1
+if !exists('g:airline_symbols')
+  let g:airline_symbols = {}
+endif
+let g:airline_symbols.space = "\ua0"
+" }}}
+
+" tagbar-----------------------{{{
+" tagbar的q是退出
+" 设置触发按键
+noremap <F2> : TagbarToggle<cr>
+" 设置tagbar要使用的ctags路径
+let g:tarbar_ctags_bin = '/usr/bin/ctags'
+" 设置窗口宽度
+let g:tarbar_width = 30
+" 显示在窗口右边
+let g:tarbar_right = 1
+" 开启自动预览
+let g:tagbar_autopreview = 1
+" 光标自动切换到tagbar中
+let g:tagbar_autoclose = 1
+" }}}
+"
+
+" nerdtree_tabs_git-------------------{{{
+" q是退出
+" F1触发
+nnoremap <F1> :NERDTreeTabsToggle<cr>
+inoremap <F1> <esc>:NERDTreeTabsToggle<cr>
+" 设置nerdtree git符号
+let g:NERDTreeIndicatorMapCustom = {
+    \ "Modified"  : "✹",
+    \ "Staged"    : "✚",
+    \ "Untracked" : "✭",
+    \ "Renamed"   : "➜",
+    \ "Unmerged"  : "═",
+    \ "Deleted"   : "✖",
+    \ "Dirty"     : "✗",
+    \ "Clean"     : "✔︎",
+    \ 'Ignored'   : '☒',
+    \ "Unknown"   : "?"
+    \ }
+" 打开文件时退出
+" let g:NERDTreeQuitOnOpen = 1
+" }}}
+
+
+" easymotion---------------{{{
+" 将原本默认的双leader前缀换为单leader前缀
+map <Leader> <Plug>(easymotion-prefix)
+" 不能使用nnoremap代替nmap，映射会失效
+nmap J <Plug>(easymotion-j)
+nmap K <plug>(easymotion-k)
+nmap W <Plug>(easymotion-w)
+nmap B <Plug>(easymotion-b)
+
+vmap J <Plug>(easymotion-j)
+vmap K <plug>(easymotion-k)
+vmap W <Plug>(easymotion-w)
+vmap B <Plug>(easymotion-b)
+" 该搜索有奇效
+nmap F <Plug>(easymotion-f)
+" }}}
+
+" fzf-----------------------{{{
+" esc是退出
+" 要先保存再搜索
+"双<Leader>f在当前目录搜索文件 
+" nnoremap <silent> f :w<CR>:Files<CR>
+nnoremap <silent> ff :Files<CR>
+" nnoremap <silent> ft :BTags <CR>
+"双<Leader>b切换Buffer中的文件
+nnoremap <silent> <Leader><Leader>b :Buffers<CR>
+"双<Leader>p在当前所有加载的Buffer中搜索包含目标词的所有行，:BLines只在当前Buffer中搜索
+nnoremap <silent> <Leader><Leader>l :Lines<CR>
+"双<Leader>h在Vim打开的历史文件中搜索，相当于是在MRU中搜索，:History：命令历史查找
+nnoremap <silent> <Leader><Leader>h :History<CR>
+"双<Leader>r利用ripgrep搜索当前文档中的行
+nnoremap <silent> fr :Rg<CR>
+"调用Rg进行搜索，包含隐藏文件
+command! -bang -nargs=* Rg
+      \ call fzf#vim#grep(
+      \   'rg --column --line-number --no-heading --color=always --smart-case --hidden '.shellescape(<q-args>), 1,
+      \   <bang>0 ? fzf#vim#with_preview('up:60%')
+      \           : fzf#vim#with_preview('right:50%:hidden', '?'),
+      \   <bang>0)
+
+
+let g:fzf_action = {
+  \ 'ctrl-l': 'tab split',
+  \ 'ctrl-x': 'split',
+  \ 'ctrl-v': 'vsplit' }
+
+" }}}
+
+
+" nerdcommenter-------------------{{{
+" <leader>cc 紧贴当前行添加注释
+" <leader>cb 紧贴左侧行添加注释
+" <leader>cu 取消注释
+" nmap <silent><leader>cc <plug>NERDComAlignedComment
+" vmap <silent><leader>cc <plug>NERDComAlignedComment
+
+" nnoremap <leader><space> <plug>NERDComToggleComment
+" vnoremap <leader><space> <plug>NERDComToggleComment
+nmap <leader><space> ,c<space>
+vmap <leader><space> ,c<space>
+
+" 注释自动添加空格
+let g:NERDSpaceDelims=1
+" python有特例
+let g:NERDCustomDelimiters = {
+     \ 'python': { 'left': '#', 'right': '' }
+     \ }
+" }}}
+
+" indentLine-----------------{{{
+let g:indentLine_fileTypeExclude = ["tex","markdown","json"]
+" 这个颜色正好
+let g:indentLine_color_term = 239
+
+" 防止indentLine导致的双引号看不见的问题
+autocmd Filetype json let g:indentLine_setConceal = 0
+
+" 设置编辑c++文件时缩进为2格
+" autocmd Filetype cpp setlocal expandtab tabstop=2 shiftwidth=2 softtabstop=2
+" }}}
+
+" autopair------------------{{{
+" autopair会修改插入模式下的c-h，导致移动键失效
+let g:AutoPairsMapCh=0
+" }}}
+
+
+" }}}

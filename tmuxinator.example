@@ -1,0 +1,8 @@
+name: mycxxproject
+root: ~/
+
+windows:
+  - editor:
+    - cd /Users/wangyue/Projects/mycxxproject
+  - zsh:
+    - cd /Users/wangyue/Projects/mycxxproject
